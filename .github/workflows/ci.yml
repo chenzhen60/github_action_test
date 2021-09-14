@@ -1,0 +1,25 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-lastest
+
+    steps:
+      -uses: actions/checkout@v1
+      -name: Setup Ruby
+       uses: actions/setup-ruby@v1
+       with:
+         ruby-version: 3.0.1
+      -uses: borales/actions-yarn@v2.0.0
+       with:
+         cmd: install
+      -name: Build and run tests
+       env:
+         RAILS_ENV: test
+         RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+       run: |
+         sudo apt-get -yqq install libq-dev
+         gem install bundler
+         bundle install --jobs4 --retry 3
+         bundle exec rails db:prepare
+         bundle exec rspec
